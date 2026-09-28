@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowDown, Search, X } from "lucide-react";
 import { PostCard } from "@/components/post-card";
 import { CodeSticker } from "@/components/code-sticker";
@@ -19,21 +20,31 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <>
       <section className="hero">
-        <div className="hero-kicker"><span>caderno digital</span><span>vol. 01</span></div>
-        <h1>Ideias que<br /><em>não cabem</em><br />na margem.</h1>
-        <div className="hero-note">
-          <span className="scribble-arrow" aria-hidden="true">↳</span>
-          <p>Um lugar para registrar processos, tropeços e descobertas entre arte e tecnologia.</p>
+        <span className="hero-doodle hero-heart" aria-hidden="true">♡</span>
+        <span className="hero-doodle hero-flower" aria-hidden="true">✻</span>
+        <figure className="hero-snapshot snapshot-left">
+          <Image src="/assets/alicia-portrait.png" width={420} height={510} alt="Retrato de Alicia Borges" priority />
+        </figure>
+        <div className="hero-card">
+          <div className="hero-tabs" aria-hidden="true"><span>código</span><span>arte</span><span>processo</span></div>
+          <div className="hero-kicker"><span>entrelinhas</span><span>blog pessoal</span></div>
+          <h1>Ideias, código<br />e arte… <em>juntos,</em><br />por aqui.</h1>
+          <div className="hero-note">
+            <p>Um espaço para guardar processos, tropeços e descobertas antes que eles se percam entre tantas abas abertas.</p>
+          </div>
+          <CodeSticker />
         </div>
-        <CodeSticker />
+        <figure className="hero-snapshot snapshot-right">
+          <Image src="/assets/lorun-sketch.jpg" width={520} height={690} alt="Estudo de personagem de Soulscapes" priority />
+        </figure>
         <ArrowDown className="hero-arrow" aria-hidden="true" />
       </section>
 
       <section className="archive" id="arquivo">
         <div className="archive-heading">
           <div>
-            <span className="eyebrow">arquivo aberto</span>
-            <h2>Notas recentes</h2>
+            <span className="eyebrow">publicações</span>
+            <h2>Últimas ideias</h2>
           </div>
           <form className="search-form" action="/">
             <Search size={17} />
