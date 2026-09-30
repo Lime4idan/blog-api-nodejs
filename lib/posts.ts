@@ -10,6 +10,27 @@ function isMissingProfilesRelation(error: { code?: string } | null) {
   return error?.code === "PGRST200";
 }
 
+type SupabaseServerClient = NonNullable<Awaited<ReturnType<typeof createClient>>>;
+
+async function attachAuthors(supabase: SupabaseServerClient, posts: Post[]) {
+  const authorIds = [...new Set(posts.map((post) => post.author_id).filter(Boolean))] as string[];
+  if (authorIds.length === 0) return posts;
+
+  const { data: profiles, error } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .in("id", authorIds);
+  if (error) throw error;
+
+  const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.display_name]));
+  return posts.map((post) => ({
+    ...post,
+    author: post.author_id && names.has(post.author_id)
+      ? { display_name: names.get(post.author_id)! }
+      : null
+  }));
+}
+
 export async function getPublishedPosts(options?: {
   category?: string;
   search?: string;
@@ -52,12 +73,15 @@ export async function getPublishedPosts(options?: {
     return query;
   };
 
+  let usedLegacySelect = false;
   let { data, error } = await fetchPosts(postSelect);
   if (isMissingProfilesRelation(error)) {
+    usedLegacySelect = true;
     ({ data, error } = await fetchPosts(legacyPostSelect));
   }
   if (error) throw error;
-  return (data ?? []) as unknown as Post[];
+  const posts = (data ?? []) as unknown as Post[];
+  return usedLegacySelect ? attachAuthors(supabase, posts) : posts;
 }
 
 export async function getPostBySlug(slug: string) {
@@ -74,13 +98,17 @@ export async function getPostBySlug(slug: string) {
       .eq("status", "published")
       .maybeSingle();
 
+  let usedLegacySelect = false;
   let { data, error } = await fetchPost(postSelect);
   if (isMissingProfilesRelation(error)) {
+    usedLegacySelect = true;
     ({ data, error } = await fetchPost(legacyPostSelect));
   }
 
   if (error) throw error;
-  return data as unknown as Post | null;
+  if (!data) return null;
+  const post = data as unknown as Post;
+  return usedLegacySelect ? (await attachAuthors(supabase, [post]))[0] ?? null : post;
 }
 
 export async function getCategories(): Promise<Category[]> {
@@ -95,24 +123,39 @@ export async function getCategories(): Promise<Category[]> {
 export async function getAdminPosts() {
   const supabase = await createClient();
   if (!supabase) return [];
-  const { data, error } = await supabase
+  const fetchPosts = (selection: string) => supabase
     .from("posts")
-    .select(postSelect)
+    .select(selection)
     .order("updated_at", { ascending: false });
+  let usedLegacySelect = false;
+  let { data, error } = await fetchPosts(postSelect);
+  if (isMissingProfilesRelation(error)) {
+    usedLegacySelect = true;
+    ({ data, error } = await fetchPosts(legacyPostSelect));
+  }
   if (error) throw error;
-  return (data ?? []) as unknown as Post[];
+  const posts = (data ?? []) as unknown as Post[];
+  return usedLegacySelect ? attachAuthors(supabase, posts) : posts;
 }
 
 export async function getAdminPost(id: string) {
   const supabase = await createClient();
   if (!supabase) return null;
-  const { data, error } = await supabase
+  const fetchPost = (selection: string) => supabase
     .from("posts")
-    .select(postSelect)
+    .select(selection)
     .eq("id", id)
     .maybeSingle();
+  let usedLegacySelect = false;
+  let { data, error } = await fetchPost(postSelect);
+  if (isMissingProfilesRelation(error)) {
+    usedLegacySelect = true;
+    ({ data, error } = await fetchPost(legacyPostSelect));
+  }
   if (error) throw error;
-  return data as unknown as Post | null;
+  if (!data) return null;
+  const post = data as unknown as Post;
+  return usedLegacySelect ? (await attachAuthors(supabase, [post]))[0] ?? null : post;
 }
 
 export async function getCurrentProfile(): Promise<Profile | null> {
@@ -134,13 +177,20 @@ export async function getCommunityPosts() {
   if (!supabase) return [];
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return [];
-  const { data, error } = await supabase
+  const fetchPosts = (selection: string) => supabase
     .from("posts")
-    .select(postSelect)
+    .select(selection)
     .eq("author_id", auth.user.id)
     .order("updated_at", { ascending: false });
+  let usedLegacySelect = false;
+  let { data, error } = await fetchPosts(postSelect);
+  if (isMissingProfilesRelation(error)) {
+    usedLegacySelect = true;
+    ({ data, error } = await fetchPosts(legacyPostSelect));
+  }
   if (error) throw error;
-  return (data ?? []) as unknown as Post[];
+  const posts = (data ?? []) as unknown as Post[];
+  return usedLegacySelect ? attachAuthors(supabase, posts) : posts;
 }
 
 export async function getCommunityPost(id: string) {
@@ -148,12 +198,20 @@ export async function getCommunityPost(id: string) {
   if (!supabase) return null;
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
-  const { data, error } = await supabase
+  const fetchPost = (selection: string) => supabase
     .from("posts")
-    .select(postSelect)
+    .select(selection)
     .eq("id", id)
     .eq("author_id", auth.user.id)
     .maybeSingle();
+  let usedLegacySelect = false;
+  let { data, error } = await fetchPost(postSelect);
+  if (isMissingProfilesRelation(error)) {
+    usedLegacySelect = true;
+    ({ data, error } = await fetchPost(legacyPostSelect));
+  }
   if (error) throw error;
-  return data as unknown as Post | null;
+  if (!data) return null;
+  const post = data as unknown as Post;
+  return usedLegacySelect ? (await attachAuthors(supabase, [post]))[0] ?? null : post;
 }
