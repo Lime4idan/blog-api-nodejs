@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type PostCoverProps = {
   title: string;
   coverUrl?: string | null;
@@ -5,9 +7,19 @@ type PostCoverProps = {
   priority?: boolean;
 };
 
-export function PostCover({ title, coverUrl, color = "#7765a5" }: PostCoverProps) {
+export function PostCover({ title, coverUrl, color = "#7765a5", priority = false }: PostCoverProps) {
   if (coverUrl) {
-    return <Image className="post-cover-image" src={coverUrl} alt="" width={1600} height={1000} sizes="(max-width: 700px) 100vw, 70vw" />;
+    return (
+      <Image
+        className="post-cover-image"
+        src={coverUrl}
+        alt=""
+        width={1600}
+        height={1000}
+        sizes="(max-width: 700px) 100vw, 70vw"
+        priority={priority}
+      />
+    );
   }
 
   return (
@@ -19,4 +31,3 @@ export function PostCover({ title, coverUrl, color = "#7765a5" }: PostCoverProps
     </div>
   );
 }
-import Image from "next/image";

@@ -90,10 +90,23 @@ img { display: block; max-width: 100%; }
 .featured-label .line { height: 1px; background: var(--line); flex: 1; }
 .posts-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px 42px; }
 .post-card:first-child { grid-column: 1 / -1; display: grid; grid-template-columns: 1.35fr .65fr; gap: 40px; align-items: center; }
-.post-card-cover { display: block; overflow: hidden; border: 1px solid var(--ink); }
+.post-card-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--ink);
+}
 .post-card-cover:hover .post-cover-placeholder, .post-card-cover:hover .post-cover-image { transform: scale(1.018); }
 .post-cover-placeholder, .post-cover-image { width: 100%; aspect-ratio: 16 / 10; transition: transform .35s ease; }
-.post-cover-image { object-fit: cover; }
+.post-card-cover > .post-cover-placeholder,
+.post-card-cover > .post-cover-image {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.post-cover-image { display: block; object-fit: cover; object-position: center; }
 .post-cover-placeholder { position: relative; overflow: hidden; background: color-mix(in srgb, var(--cover-color), white 74%); padding: clamp(20px, 4vw, 55px); display: flex; flex-direction: column; justify-content: space-between; }
 .cover-grid { position: absolute; inset: 0; opacity: .22; background-image: linear-gradient(var(--cover-color) 1px, transparent 1px), linear-gradient(90deg, var(--cover-color) 1px, transparent 1px); background-size: 22px 22px; }
 .cover-symbol { position: relative; align-self: flex-end; font-size: clamp(30px, 5vw, 70px); color: var(--cover-color); }
@@ -122,7 +135,22 @@ img { display: block; max-width: 100%; }
 .article-meta span { color: var(--coral); }
 .article-header h1 { font: 700 clamp(50px, 8vw, 110px)/.94 var(--serif); letter-spacing: -.055em; margin: 25px 0; }
 .article-header > p { color: var(--muted); font: 19px/1.6 var(--sans); max-width: 700px; margin: auto; }
-.article-cover { max-width: 1100px; margin: auto; border: 1px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); }
+.article-cover {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  aspect-ratio: 16 / 10;
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+.article-cover > .post-cover-placeholder,
+.article-cover > .post-cover-image {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
 .article-content { max-width: 720px; margin: 90px auto; font: 19px/1.85 var(--serif); }
 .article-content h2 { margin: 2.1em 0 .7em; font: 700 42px/1.05 var(--serif); letter-spacing: -.03em; }
 .article-content p { margin: 1.3em 0; }

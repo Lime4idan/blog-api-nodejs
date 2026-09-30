@@ -13,7 +13,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
   return (
     <article className="post-card">
       <Link href={`/posts/${post.slug}`} className="post-card-cover" aria-label={`Ler ${post.title}`}>
-        <PostCover title={post.title} coverUrl={post.cover_url} color={post.category?.color} />
+        <PostCover title={post.title} coverUrl={post.cover_url} color={post.category?.color} priority={index === 0} />
       </Link>
       <div className="post-card-body">
         <div className="post-meta">
