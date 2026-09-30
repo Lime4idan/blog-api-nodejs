@@ -250,6 +250,8 @@ img { display: block; max-width: 100%; }
 .auth-tabs button { min-height: 52px; border: 0; background: var(--violet); cursor: pointer; font: 700 11px var(--mono); text-transform: uppercase; }
 .auth-tabs button + button { border-left: 1px solid var(--ink); }
 .auth-tabs button.active { background: var(--ink); color: var(--paper); }
+.auth-resend { width: 100%; border: 0; border-bottom: 1px solid currentColor; background: transparent; color: var(--ink); padding: 8px 0 3px; cursor: pointer; font: 10px var(--mono); text-transform: uppercase; }
+.auth-resend:disabled { opacity: .45; cursor: wait; }
 .community-login-form { border: 0; box-shadow: none; background: transparent; }
 .community-dashboard .dashboard-header > div:first-child p { max-width: 620px; color: var(--muted); }
 .community-status-guide { display: flex; gap: 22px; flex-wrap: wrap; margin: 28px 0 12px; font: 10px var(--mono); text-transform: uppercase; }
