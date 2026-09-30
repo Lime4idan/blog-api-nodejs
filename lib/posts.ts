@@ -4,6 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import type { Category, Post, Profile } from "@/lib/types";
 
 const postSelect = "*, category:categories(*), author:profiles(display_name)";
+const legacyPostSelect = "*, category:categories(*)";
+
+function isMissingProfilesRelation(error: { code?: string } | null) {
+  return error?.code === "PGRST200";
+}
 
 export async function getPublishedPosts(options?: {
   category?: string;
@@ -28,25 +33,29 @@ export async function getPublishedPosts(options?: {
   const supabase = await createClient();
   if (!supabase) return [];
 
-  let query = supabase
-    .from("posts")
-    .select(postSelect)
-    .eq("status", "published")
-    .lte("published_at", new Date().toISOString())
-    .order("published_at", { ascending: false });
+  const { data: category } = options?.category
+    ? await supabase.from("categories").select("id").eq("slug", options.category).maybeSingle()
+    : { data: null };
 
-  if (options?.category) {
-    const { data: category } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", options.category)
-      .maybeSingle();
-    query = category ? query.eq("category_id", category.id) : query.eq("category_id", "none");
+  const fetchPosts = async (selection: string) => {
+    let query = supabase
+      .from("posts")
+      .select(selection)
+      .eq("status", "published")
+      .lte("published_at", new Date().toISOString())
+      .order("published_at", { ascending: false });
+    if (options?.category) {
+      query = category ? query.eq("category_id", category.id) : query.eq("category_id", "none");
+    }
+    if (search) query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+    if (options?.limit) query = query.limit(options.limit);
+    return query;
+  };
+
+  let { data, error } = await fetchPosts(postSelect);
+  if (isMissingProfilesRelation(error)) {
+    ({ data, error } = await fetchPosts(legacyPostSelect));
   }
-  if (search) query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
-  if (options?.limit) query = query.limit(options.limit);
-
-  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []) as unknown as Post[];
 }
@@ -58,12 +67,17 @@ export async function getPostBySlug(slug: string) {
 
   const supabase = await createClient();
   if (!supabase) return null;
-  const { data, error } = await supabase
-    .from("posts")
-    .select(postSelect)
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
+  const fetchPost = (selection: string) => supabase
+      .from("posts")
+      .select(selection)
+      .eq("slug", slug)
+      .eq("status", "published")
+      .maybeSingle();
+
+  let { data, error } = await fetchPost(postSelect);
+  if (isMissingProfilesRelation(error)) {
+    ({ data, error } = await fetchPost(legacyPostSelect));
+  }
 
   if (error) throw error;
   return data as unknown as Post | null;
