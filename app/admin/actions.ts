@@ -56,7 +56,8 @@ export async function savePost(formData: FormData) {
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Revise os campos.");
 
   const cover = formData.get("cover") as File | null;
-  const newCoverUrl = cover?.size ? await uploadCover(cover, user.id) : null;
+  const uploadedCoverUrl = formData.get("uploaded_cover_url")?.toString().trim() || null;
+  const newCoverUrl = uploadedCoverUrl ?? (cover?.size ? await uploadCover(cover, user.id) : null);
   const currentCoverUrl = formData.get("current_cover_url")?.toString() || null;
   const now = new Date().toISOString();
   const payload = {

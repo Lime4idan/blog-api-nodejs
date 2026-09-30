@@ -94,7 +94,7 @@ img { display: block; max-width: 100%; }
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   border: 1px solid var(--ink);
 }
@@ -106,7 +106,7 @@ img { display: block; max-width: 100%; }
   height: 100%;
   aspect-ratio: auto;
 }
-.post-cover-image { display: block; object-fit: cover; object-position: center; }
+.post-cover-image { display: block; object-fit: contain; object-position: center; background: var(--paper-deep); }
 .post-cover-placeholder { position: relative; overflow: hidden; background: color-mix(in srgb, var(--cover-color), white 74%); padding: clamp(20px, 4vw, 55px); display: flex; flex-direction: column; justify-content: space-between; }
 .cover-grid { position: absolute; inset: 0; opacity: .22; background-image: linear-gradient(var(--cover-color) 1px, transparent 1px), linear-gradient(90deg, var(--cover-color) 1px, transparent 1px); background-size: 22px 22px; }
 .cover-symbol { position: relative; align-self: flex-end; font-size: clamp(30px, 5vw, 70px); color: var(--cover-color); }
@@ -139,7 +139,7 @@ img { display: block; max-width: 100%; }
   position: relative;
   width: 100%;
   max-width: 1100px;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   margin: auto;
   overflow: hidden;
   border: 1px solid var(--ink);
@@ -183,6 +183,7 @@ img { display: block; max-width: 100%; }
 .login-form input:focus, .editor-form input:focus, .editor-form textarea:focus, .editor-form select:focus { box-shadow: 0 0 0 2px var(--coral); }
 .login-form .button-primary { width: 100%; }
 .setup-note, .form-message { font: 11px/1.5 var(--mono); color: var(--muted); margin-top: 18px; }
+.form-error { color: #9b3144; border: 1px solid currentColor; background: #f8e5e8; padding: 12px 14px; }
 
 .setup-page { max-width: 850px; min-height: 70vh; }
 .setup-page h1 { font: 700 clamp(55px, 8vw, 100px)/.93 var(--serif); letter-spacing: -.05em; margin: 18px 0 28px; }
