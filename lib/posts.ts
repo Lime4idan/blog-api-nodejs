@@ -1,9 +1,9 @@
 import { demoCategories, demoPosts } from "@/lib/demo-data";
 import { isSupabaseConfigured } from "@/lib/config";
 import { createClient } from "@/lib/supabase/server";
-import type { Category, Post } from "@/lib/types";
+import type { Category, Post, Profile } from "@/lib/types";
 
-const postSelect = "*, category:categories(*)";
+const postSelect = "*, category:categories(*), author:profiles(display_name)";
 
 export async function getPublishedPosts(options?: {
   category?: string;
@@ -96,6 +96,49 @@ export async function getAdminPost(id: string) {
     .from("posts")
     .select(postSelect)
     .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data as unknown as Post | null;
+}
+
+export async function getCurrentProfile(): Promise<Profile | null> {
+  const supabase = await createClient();
+  if (!supabase) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return null;
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", auth.user.id)
+    .maybeSingle();
+  if (error) throw error;
+  return data as Profile | null;
+}
+
+export async function getCommunityPosts() {
+  const supabase = await createClient();
+  if (!supabase) return [];
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return [];
+  const { data, error } = await supabase
+    .from("posts")
+    .select(postSelect)
+    .eq("author_id", auth.user.id)
+    .order("updated_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as Post[];
+}
+
+export async function getCommunityPost(id: string) {
+  const supabase = await createClient();
+  if (!supabase) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return null;
+  const { data, error } = await supabase
+    .from("posts")
+    .select(postSelect)
+    .eq("id", id)
+    .eq("author_id", auth.user.id)
     .maybeSingle();
   if (error) throw error;
   return data as unknown as Post | null;

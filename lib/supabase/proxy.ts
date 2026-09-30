@@ -21,18 +21,41 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
+  const isAdminArea = pathname.startsWith("/admin");
+  const isAdminLogin = pathname === "/admin/login";
+  const isCommunityArea = pathname.startsWith("/community");
+  const isCommunityLogin = pathname === "/community/login";
 
-  if (request.nextUrl.pathname.startsWith("/admin") &&
-      request.nextUrl.pathname !== "/admin/login" &&
-      !data.user) {
+  if ((isAdminArea && !isAdminLogin || isCommunityArea && !isCommunityLogin) && !data.user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
+    url.pathname = isAdminArea ? "/admin/login" : "/community/login";
     return NextResponse.redirect(url);
   }
 
-  if (request.nextUrl.pathname === "/admin/login" && data.user) {
+  if (!data.user) return response;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .maybeSingle();
+
+  if (isAdminArea && !isAdminLogin && profile?.role !== "admin") {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin";
+    url.pathname = "/community";
+    return NextResponse.redirect(url);
+  }
+
+  if (isAdminLogin) {
+    const url = request.nextUrl.clone();
+    url.pathname = profile?.role === "admin" ? "/admin" : "/community";
+    return NextResponse.redirect(url);
+  }
+
+  if (isCommunityLogin) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/community";
     return NextResponse.redirect(url);
   }
 

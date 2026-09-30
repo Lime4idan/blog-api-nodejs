@@ -10,6 +10,7 @@ export function SiteFooter() {
       <div className="footer-links">
         <a href="https://github.com/Lime4idan" target="_blank" rel="noreferrer">GitHub</a>
         <a href="https://www.linkedin.com/in/alicia-borges-570652401/" target="_blank" rel="noreferrer">LinkedIn</a>
+        <Link href="/community/login">Comunidade</Link>
         <Link href="/admin/login">Admin</Link>
       </div>
     </footer>

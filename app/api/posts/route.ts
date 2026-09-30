@@ -17,6 +17,13 @@ export async function POST(request: NextRequest) {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", auth.user.id)
+    .maybeSingle();
+  const isAdmin = profile?.role === "admin";
+
   const body = await request.json();
   const { data, error } = await supabase.from("posts").insert({
     title: body.title,
@@ -24,8 +31,9 @@ export async function POST(request: NextRequest) {
     excerpt: body.excerpt,
     content: body.content,
     category_id: body.category_id || null,
-    status: body.status === "published" ? "published" : "draft",
-    published_at: body.status === "published" ? new Date().toISOString() : null,
+    status: isAdmin && body.status === "published" ? "published" : "pending",
+    featured: isAdmin && body.featured === true,
+    published_at: isAdmin && body.status === "published" ? new Date().toISOString() : null,
     author_id: auth.user.id
   }).select().single();
 

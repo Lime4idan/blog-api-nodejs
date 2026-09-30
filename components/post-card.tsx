@@ -19,6 +19,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
         <div className="post-meta">
           <span>{String(index + 1).padStart(2, "0")}</span>
           <span>{post.category?.name ?? "Notas"}</span>
+          {post.author?.display_name && <span>por {post.author.display_name}</span>}
           <time dateTime={post.published_at ?? post.created_at}>
             {dateFormatter.format(new Date(post.published_at ?? post.created_at))}
           </time>

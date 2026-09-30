@@ -25,6 +25,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   if (!data.user) redirect("/admin/login");
   const posts = await getAdminPosts();
   const publishedCount = posts.filter((post) => post.status === "published").length;
+  const pendingCount = posts.filter((post) => post.status === "pending").length;
+  const statusLabel = { draft: "rascunho", pending: "em revisão", published: "publicado", rejected: "ajustes" } as const;
 
   return (
     <section className="dashboard page-shell">
@@ -41,7 +43,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <div className="dashboard-stats">
         <div><span>total</span><strong>{posts.length}</strong></div>
         <div><span>publicados</span><strong>{publishedCount}</strong></div>
-        <div><span>rascunhos</span><strong>{posts.length - publishedCount}</strong></div>
+        <div><span>em revisão</span><strong>{pendingCount}</strong></div>
       </div>
 
       <div className="post-table">
@@ -49,8 +51,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         {posts.map((post) => (
           <div className="post-row" key={post.id}>
             <div className="status-dot" data-status={post.status} />
-            <div><strong>{post.title}</strong><small>{post.category?.name ?? "Sem categoria"} · atualizado em {new Intl.DateTimeFormat("pt-BR").format(new Date(post.updated_at))}</small></div>
-            <span className={`status-pill ${post.status}`}>{post.status === "published" ? "publicado" : "rascunho"}</span>
+            <div><strong>{post.title}</strong><small>{post.author?.display_name ? `por ${post.author.display_name} · ` : ""}{post.category?.name ?? "Sem categoria"} · atualizado em {new Intl.DateTimeFormat("pt-BR").format(new Date(post.updated_at))}</small></div>
+            <span className={`status-pill ${post.status}`}>{statusLabel[post.status]}</span>
             <Link className="icon-button" href={`/admin/posts/${post.id}/edit`} aria-label="Editar texto"><Edit3 size={16} /></Link>
             <DeletePostButton id={post.id} />
           </div>

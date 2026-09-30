@@ -1,6 +1,6 @@
 # Entrelinhas — blog de Alicia Borges
 
-Um blog editorial completo para publicar notas sobre código, arte, design e processos criativos. O projeto substitui a antiga API de estudos por uma aplicação real, com site público, painel protegido e persistência no Supabase.
+Um blog editorial e comunitário para publicar notas sobre código, arte, design e processos criativos. Além do espaço autoral de Alicia Borges, leitores podem criar uma conta, escrever em Markdown e enviar textos para moderação.
 
 ![Prévia da página inicial do Entrelinhas](docs/entrelinhas-preview.png)
 
@@ -8,12 +8,15 @@ Um blog editorial completo para publicar notas sobre código, arte, design e pro
 
 - página inicial responsiva com busca e filtros por categoria;
 - páginas individuais com conteúdo em Markdown;
-- autenticação de autora, sem cadastro público;
-- painel para criar, editar, publicar e excluir textos;
+- cadastro e login de membros com Supabase Auth;
+- área pessoal para escrever, editar e acompanhar envios;
+- fila de moderação: colaboradores não publicam diretamente;
+- painel administrativo para revisar, aprovar, rejeitar e editar textos;
 - rascunhos, destaque e pré-visualização;
 - upload de capas pelo Supabase Storage;
 - API pública de leitura em `/api/posts` e `/api/posts/[slug]`;
-- Row Level Security para proteger rascunhos e ações administrativas;
+- perfis com papéis `member` e `admin`;
+- Row Level Security para isolar rascunhos, proteger a moderação e impedir autopublicação;
 - modo de demonstração local quando o Supabase ainda não está conectado.
 
 ## Stack
@@ -38,7 +41,7 @@ Abra [http://localhost:3000](http://localhost:3000). Sem variáveis de ambiente,
 
 1. Crie um projeto no Supabase.
 2. Abra o SQL Editor e execute [`supabase/schema.sql`](supabase/schema.sql).
-3. Em Authentication, crie manualmente a conta da autora. O site não oferece cadastro público.
+3. Em Authentication, crie a conta administradora usando `admin@entrelinhas.local`, ou ajuste o e-mail marcado como administrador no final do SQL.
 4. Copie a URL e a publishable key para `.env.local`:
 
 ```env
@@ -46,7 +49,10 @@ NEXT_PUBLIC_SUPABASE_URL=https://SEU_PROJETO.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=SUA_CHAVE_PUBLICA
 ```
 
-5. Reinicie o servidor e acesse `/admin/login`.
+5. Em **Authentication → URL Configuration**, adicione `http://localhost:3000/auth/callback` e a URL pública do projeto como destinos permitidos.
+6. Reinicie o servidor. A autora entra por `/admin/login`; membros usam `/community/login`.
+
+Se o banco já existia antes da área comunitária, execute apenas a migração [`supabase/migrations/20260930_community.sql`](supabase/migrations/20260930_community.sql).
 
 Nunca coloque uma secret key ou service role key no navegador. As permissões públicas são limitadas pelas políticas RLS do banco.
 
@@ -65,7 +71,7 @@ npm run build      # build de produção
 app/                 rotas públicas, admin e API
 components/          componentes de interface e editor
 lib/                 consultas, tipos e clientes Supabase
-supabase/schema.sql  banco, storage e políticas RLS
+supabase/             schema, migrações, storage e políticas RLS
 ```
 
 Projeto de [Alicia Borges](https://github.com/Lime4idan).

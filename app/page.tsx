@@ -66,6 +66,13 @@ export default async function Home({ searchParams }: HomeProps) {
           ))}
         </div>
 
+        {!params.busca && !params.categoria && (
+          <aside className="community-callout">
+            <div><span className="eyebrow">espaço aberto</span><h3>Tem uma ideia para dividir?</h3><p>Crie sua conta, escreva uma nota e envie para aparecer no Entrelinhas.</p></div>
+            <Link href="/community/login" className="button-primary">participar da comunidade</Link>
+          </aside>
+        )}
+
         {featured && (
           <div className="featured-label">
             <span>em destaque</span><span className="line" />

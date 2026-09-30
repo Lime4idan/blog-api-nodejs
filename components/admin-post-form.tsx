@@ -130,7 +130,7 @@ export function AdminPostForm({ post, categories }: { post?: Post | null; catego
         </div>
 
         <aside className="editor-sidebar">
-          <label>Status<select name="status" defaultValue={post?.status ?? "draft"}><option value="draft">Rascunho</option><option value="published">Publicado</option></select></label>
+          <label>Status<select name="status" defaultValue={post?.status ?? "draft"}><option value="draft">Rascunho</option><option value="pending">Em revisão</option><option value="published">Publicado</option><option value="rejected">Pedir ajustes</option></select></label>
           <label>Categoria<select name="category_id" defaultValue={post?.category_id ?? ""}><option value="">Sem categoria</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
           <label className="check-field"><input type="checkbox" name="featured" defaultChecked={post?.featured} /> destacar na página inicial</label>
           <label className="file-field"><ImagePlus size={20} /><span>Capa do texto<small>{coverName || "JPG, PNG ou WebP · até 5 MB"}</small></span><input ref={coverInputRef} type="file" name="cover" accept="image/png,image/jpeg,image/webp" onChange={(event) => { setCoverName(event.target.files?.[0]?.name ?? ""); setSaveError(""); }} /></label>

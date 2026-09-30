@@ -31,6 +31,7 @@ export default async function PostPage({ params }: PostPageProps) {
       <header className="article-header">
         <div className="article-meta">
           <span>{post.category?.name ?? "Notas"}</span>
+          {post.author?.display_name && <span>por {post.author.display_name}</span>}
           <time dateTime={post.published_at ?? post.created_at}>{published}</time>
         </div>
         <h1>{post.title}</h1>

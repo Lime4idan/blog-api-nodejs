@@ -13,8 +13,8 @@ export function SiteHeader() {
       </Link>
       <nav aria-label="Navegação principal">
         <Link href="/">notas</Link>
+        <Link href="/community/login">comunidade</Link>
         <Link href="/about">sobre</Link>
-        <Link href="/admin/login">escrever</Link>
       </nav>
       <Link className="search-link" href="/?busca=" aria-label="Pesquisar textos">
         <Search size={18} />

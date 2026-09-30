@@ -12,7 +12,7 @@ const postSchema = z.object({
   excerpt: z.string().trim().min(10).max(280),
   content: z.string().trim().min(20),
   category_id: z.string().uuid().nullable(),
-  status: z.enum(["draft", "published"]),
+  status: z.enum(["draft", "pending", "published", "rejected"]),
   featured: z.boolean()
 });
 
@@ -21,6 +21,12 @@ async function requireUser() {
   if (!supabase) throw new Error("Supabase ainda não foi configurado.");
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/admin/login");
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .maybeSingle();
+  if (profile?.role !== "admin") redirect("/community");
   return { supabase, user: data.user };
 }
 
